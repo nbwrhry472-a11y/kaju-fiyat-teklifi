@@ -11,7 +11,7 @@
 <main>
 <section id="home" class="screen active"><div class="title">Ürünler</div><p class="desc">Fiyat hesaplamak istediğiniz ürün grubunu seçin.</p><div class="grid"><div class="menu" onclick="show('card')"><h2>💳 Kartvizit</h2><p>Ofset ve dijital kartvizit fiyatları.</p></div></div></section>
 <section id="card" class="screen"><button class="back" onclick="show('home')">← Geri</button><div class="title">Kartvizit</div><p class="desc">Kartvizit türünü seçin.</p><div class="grid"><div class="menu" onclick="show('offset');load()"><h2>Ofset Kartvizit</h2><p>1000 adet sabit fiyatlı kartvizitler.</p></div><div class="menu" onclick="alert('Dijital Kartvizit bölümünü sonraki aşamada ekleyeceğiz.')"><h2>Dijital Kartvizit</h2><p>Sonraki aşamada eklenecek.</p></div></div></section>
-<section id="offset" class="screen"><button class="back" onclick="show('card')">← Geri</button><div class="title">Ofset Kartvizit</div><p class="desc">Fiyatlar 1000 adet içindir. Fiyat değişiklikleri tüm cihazlarda Supabase üzerinden güncellenir.</p><input id="productSearch" class="search" placeholder="Kod veya özellik ara..." oninput="render()" onkeyup="render()" onchange="render()" onsearch="render()"><div id="status">Fiyatlar yükleniyor...</div><div id="products" class="products"></div></section>
+<section id="offset" class="screen"><button class="back" onclick="show('card')">← Geri</button><div class="title">Ofset Kartvizit</div><p class="desc">Fiyatlar 1000 adet içindir. Fiyat değişiklikleri tüm cihazlarda Supabase üzerinden güncellenir.</p><input id="productSearch" class="search" type="search" autocomplete="off" placeholder="Kod veya özellik ara..."><div id="status">Fiyatlar yükleniyor...</div><div id="products" class="products"></div></section>
 </main>
 <dialog id="dlg"><b id="dt"></b><p class="desc">1000 adet fiyatı (TL)</p><input id="pi" type="number" min="0" step="1"><div class="actions"><button class="back" onclick="dlg.close()">İptal</button><button class="blue" onclick="savePrice()">Kaydet</button></div></dialog>
 <script>
@@ -109,4 +109,13 @@ async function savePrice(){
     alert('Fiyat güncellenemedi: '+(err && err.message ? err.message : String(err)));
   }
 }
+
+document.addEventListener('DOMContentLoaded', function(){
+  var searchBox=document.getElementById('productSearch');
+  if(searchBox){
+    ['input','keyup','change','search'].forEach(function(evt){
+      searchBox.addEventListener(evt, function(){ render(); });
+    });
+  }
+});
 </script></body></html>
