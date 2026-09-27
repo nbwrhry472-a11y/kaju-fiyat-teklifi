@@ -50,10 +50,26 @@ async function load(){
   }
 }
 
+function normalizeSearch(s){
+  return (s||'')
+    .toLocaleLowerCase('tr')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g,'')
+    .replace(/ı/g,'i')
+    .replace(/[^a-z0-9ğüşöç]+/g,' ')
+    .trim();
+}
 function render(){
-  const q=(document.getElementById('productSearch').value||'').toLocaleLowerCase('tr');
+  const q=normalizeSearch(document.getElementById('productSearch').value);
   const list=rows.filter(function(x){
-    return (((x.urun||'')+' '+(DESC[x.urun]||'')).toLocaleLowerCase('tr').indexOf(q)>=0);
+    const hay=normalizeSearch((x.urun||'')+' '+(DESC[x.urun]||''));
+    if(!q)return true;
+    const terms=q.split(/\s+/).filter(Boolean);
+    return terms.every(function(term){
+      return hay.split(/\s+/).some(function(word){
+        return word.indexOf(term)>=0;
+      });
+    });
   });
   document.getElementById('products').innerHTML=list.map(function(x){
     return '<div class="product"><div class="ph"><span class="code">'+x.urun+
