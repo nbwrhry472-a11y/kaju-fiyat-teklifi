@@ -20,22 +20,28 @@ const db=window.supabase.createClient(URL,KEY);let rows=[],editing=null;
 function show(id){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active')}
 function money(n){return new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TRY',maximumFractionDigits:0}).format(Number(n||0))}
 async function load(){
- status.textContent='Fiyatlar yükleniyor...';
- const {data,error}=await db.from('urun_fiyatlari').select('*').is('teklif_no',null).order('id');
- if(error){status.textContent='Bağlantı hatası: '+error.message;return}
- rows=(data||[]).filter(x=>x.urun);
- status.textContent=rows.length+' kartvizit çeşidi yüklendi.';render();
+ const statusEl=document.getElementById('status');
+ statusEl.textContent='Fiyatlar yükleniyor...';
+ try{
+   const {data,error}=await db.from('urun_fiyatlari').select('*').is('teklif_no',null).order('id');
+   if(error) throw error;
+   rows=(data||[]).filter(x=>x.urun);
+   statusEl.textContent=rows.length+' kartvizit çeşidi yüklendi.';
+   render();
+ }catch(e){
+   statusEl.textContent='Bağlantı hatası: '+(e?.message||e);
+ }
 }
 function render(){
  const q=(document.getElementById('search').value||'').toLocaleLowerCase('tr');
  const list=rows.filter(x=>((x.urun||'')+' '+(DESC[x.urun]||'')).toLocaleLowerCase('tr').includes(q));
- products.innerHTML=list.map(x=>`<div class="product"><div class="ph"><span class="code">${x.urun}</span><span class="price">${money(x.toplam_fiyat)}</span></div><span class="qty">1000 Adet</span><div class="spec">${DESC[x.urun]||''}</div><button class="edit" onclick="editPrice(${x.id})">Fiyatı Düzenle</button></div>`).join('');
+ document.getElementById('products').innerHTML=list.map(x=>`<div class="product"><div class="ph"><span class="code">${x.urun}</span><span class="price">${money(x.toplam_fiyat)}</span></div><span class="qty">1000 Adet</span><div class="spec">${DESC[x.urun]||''}</div><button class="edit" onclick="editPrice(${x.id})">Fiyatı Düzenle</button></div>`).join('');
 }
-function editPrice(id){editing=rows.find(x=>x.id===id);dt.textContent=editing.urun+' Fiyatını Düzenle';pi.value=editing.toplam_fiyat;dlg.showModal()}
+function editPrice(id){editing=rows.find(x=>x.id===id);document.getElementById('dt').textContent=editing.urun+' Fiyatını Düzenle';document.getElementById('pi').value=editing.toplam_fiyat;document.getElementById('dlg').showModal()}
 async function savePrice(){
- if(!editing)return;const v=Number(pi.value);if(!Number.isFinite(v)||v<0)return;
+ if(!editing)return;const v=Number(document.getElementById('pi').value);if(!Number.isFinite(v)||v<0)return;
  const {error}=await db.from('urun_fiyatlari').update({toplam_fiyat:v}).eq('id',editing.id);
  if(error){alert('Fiyat güncellenemedi: '+error.message);return}
- editing.toplam_fiyat=v;dlg.close();render();
+ editing.toplam_fiyat=v;document.getElementById('dlg').close();render();
 }
 </script></body></html>
