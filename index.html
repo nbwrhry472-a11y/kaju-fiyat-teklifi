@@ -8,8 +8,23 @@ body{margin:0;background:#0b0d0c;color:#fff;font-family:Arial}.w{max-width:850px
 </div><script>
 const URL='https://bczhmrabfggifwuctuot.supabase.co';let db,products=[];
 const tl=n=>new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TRY'}).format(Number(n||0));
-async function connect(){let k=key.value.trim();if(!k)return;localStorage.setItem('kaju_key',k);db=supabase.createClient(URL,k);st.textContent='Bağlanıyor...';let {data,error}=await db.from('urun_fiyatlari').select('*');if(error){st.className='err';st.textContent=error.message;return}products=data.filter(x=>!x.teklif_no);urun.innerHTML='<option value="">Ürün seçin</option>';products.forEach((p,i)=>{let n=p.urun||p.malzeme||p.urun_adi||p.kod||('Ürün '+p.id),f=p.fiyat??p.toplam_fiyat??p.birim_fiyat??0;urun.innerHTML+=`<option value="${i}">${n} — ${tl(f)}</option>`});st.className='ok';st.textContent=products.length+' ürün yüklendi.'}
-function calc(){let p=urun.value===''?null:products[+urun.value],base=p?Number(p.fiyat??p.toplam_fiyat??p.birim_fiyat??0):0,v=Number(kdv.value||0),tax=base*v/100;ara.textContent=tl(base);kt.textContent=tl(tax);genel.textContent=tl(base+tax);return{p,base,tax,total:base+tax}}
+async function connect(){
+const keyEl=document.getElementById('key'),stEl=document.getElementById('st'),urunEl=document.getElementById('urun');
+let k=keyEl.value.trim();
+if(!k){stEl.className='err';stEl.textContent='Anahtarı yapıştırın.';return}
+try{
+stEl.className='m';stEl.textContent='Bağlanıyor...';
+localStorage.setItem('kaju_key',k);
+db=window.supabase.createClient(URL,k);
+let {data,error}=await db.from('urun_fiyatlari').select('*');
+if(error)throw error;
+products=(data||[]).filter(x=>!x.teklif_no);
+urunEl.innerHTML='<option value="">Ürün seçin</option>';
+products.forEach((p,i)=>{let n=p.urun||p.malzeme||p.urun_adi||p.kod||('Ürün '+p.id),f=p.fiyat??p.toplam_fiyat??p.birim_fiyat??0;urunEl.innerHTML+=`<option value="${i}">${n} — ${tl(f)}</option>`});
+stEl.className='ok';stEl.textContent=products.length+' ürün yüklendi.';
+}catch(e){stEl.className='err';stEl.textContent='Bağlantı hatası: '+(e?.message||e)}
+}
+function calc(){const urunEl=document.getElementById('urun'),kdvEl=document.getElementById('kdv');let p=urunEl.value===''?null:products[+urunEl.value],base=p?Number(p.fiyat??p.toplam_fiyat??p.birim_fiyat??0):0,v=Number(kdvEl.value||0),tax=base*v/100;document.getElementById('ara').textContent=tl(base);document.getElementById('kt').textContent=tl(tax);document.getElementById('genel').textContent=tl(base+tax);return{p,base,tax,total:base+tax}}
 async function saveOffer(){if(!db)return saveSt.textContent='Önce bağlantıyı kurun.';let c=calc();if(!c.p)return saveSt.textContent='Ürün seçin.';let no='KT'+new Date().getFullYear().toString().slice(-2)+String(Date.now()).slice(-6),name=c.p.urun||c.p.malzeme||c.p.urun_adi||c.p.kod||('Ürün '+c.p.id);let row={teklif_no:no,musteri:musteri.value||null,telefon:telefon.value||null,email:email.value||null,urun:name,adet:+adet.value,toplam_fiyat:c.base,kdv_orani:+kdv.value,genel_toplam:c.total,notlar:notlar.value||null,durum:'Aktif'};let {error}=await db.from('urun_fiyatlari').insert(row);saveSt.className=error?'err':'ok';saveSt.textContent=error?('Kaydedilemedi: '+error.message):('Teklif kaydedildi: '+no)}
-let k=localStorage.getItem('kaju_key');if(k){key.value=k;connect()}
+let k=localStorage.getItem('kaju_key');if(k){document.getElementById('key').value=k;connect()}
 </script></body></html>
