@@ -11,7 +11,7 @@
 <main>
 <section id="home" class="screen active"><div class="title">Ürünler</div><p class="desc">Fiyat hesaplamak istediğiniz ürün grubunu seçin.</p><div class="grid"><div class="menu" onclick="show('card')"><h2>💳 Kartvizit</h2><p>Ofset ve dijital kartvizit fiyatları.</p></div></div></section>
 <section id="card" class="screen"><button class="back" onclick="show('home')">← Geri</button><div class="title">Kartvizit</div><p class="desc">Kartvizit türünü seçin.</p><div class="grid"><div class="menu" onclick="show('offset');load()"><h2>Ofset Kartvizit</h2><p>1000 adet sabit fiyatlı kartvizitler.</p></div><div class="menu" onclick="alert('Dijital Kartvizit bölümünü sonraki aşamada ekleyeceğiz.')"><h2>Dijital Kartvizit</h2><p>Sonraki aşamada eklenecek.</p></div></div></section>
-<section id="offset" class="screen"><button class="back" onclick="show('card')">← Geri</button><div class="title">Ofset Kartvizit</div><p class="desc">Fiyatlar 1000 adet içindir. Fiyat değişiklikleri tüm cihazlarda Supabase üzerinden güncellenir.</p><input id="search" class="search" placeholder="Kod veya özellik ara..." oninput="render()"><div id="status">Fiyatlar yükleniyor...</div><div id="products" class="products"></div></section>
+<section id="offset" class="screen"><button class="back" onclick="show('card')">← Geri</button><div class="title">Ofset Kartvizit</div><p class="desc">Fiyatlar 1000 adet içindir. Fiyat değişiklikleri tüm cihazlarda Supabase üzerinden güncellenir.</p><input id="productSearch" class="search" placeholder="Kod veya özellik ara..." oninput="render()"><div id="status">Fiyatlar yükleniyor...</div><div id="products" class="products"></div></section>
 </main>
 <dialog id="dlg"><b id="dt"></b><p class="desc">1000 adet fiyatı (TL)</p><input id="pi" type="number" min="0" step="1"><div class="actions"><button class="back" onclick="dlg.close()">İptal</button><button class="blue" onclick="savePrice()">Kaydet</button></div></dialog>
 <script>
@@ -20,20 +20,20 @@ const db=window.supabase.createClient(URL,KEY);let rows=[],editing=null;
 function show(id){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active')}
 function money(n){return new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TRY',maximumFractionDigits:0}).format(Number(n||0))}
 async function load(){
- const statusEl=document.getElementById('status');
- statusEl.textContent='Fiyatlar yükleniyor...';
+ const statusBox=document.getElementById('status');
+ statusBox.textContent='Fiyatlar yükleniyor...';
  try{
    const {data,error}=await db.from('urun_fiyatlari').select('*').is('teklif_no',null).order('id');
    if(error) throw error;
    rows=(data||[]).filter(x=>x.urun);
-   statusEl.textContent=rows.length+' kartvizit çeşidi yüklendi.';
+   statusBox.textContent=rows.length+' kartvizit çeşidi yüklendi.';
    render();
  }catch(e){
-   statusEl.textContent='Bağlantı hatası: '+(e?.message||e);
+   statusBox.textContent='Bağlantı hatası: '+(e?.message||e);
  }
 }
 function render(){
- const q=(document.getElementById('search').value||'').toLocaleLowerCase('tr');
+ const q=(document.getElementById('productSearch').value||'').toLocaleLowerCase('tr');
  const list=rows.filter(x=>((x.urun||'')+' '+(DESC[x.urun]||'')).toLocaleLowerCase('tr').includes(q));
  document.getElementById('products').innerHTML=list.map(x=>`<div class="product"><div class="ph"><span class="code">${x.urun}</span><span class="price">${money(x.toplam_fiyat)}</span></div><span class="qty">1000 Adet</span><div class="spec">${DESC[x.urun]||''}</div><button class="edit" onclick="editPrice(${x.id})">Fiyatı Düzenle</button></div>`).join('');
 }
