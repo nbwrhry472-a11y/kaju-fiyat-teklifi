@@ -2,7 +2,7 @@
 <html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#111827"><meta name="apple-mobile-web-app-capable" content="yes">
 <title>Kaju Fiyat Teklifi Uygulaması</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 :root{--bg:#f3f4f6;--card:#fff;--text:#111827;--muted:#6b7280;--line:#e5e7eb;--dark:#111827;--green:#16a34a;--blue:#2563eb}
 *{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--text)}header{background:var(--dark);color:#fff;padding:18px 16px;position:sticky;top:0;z-index:5}.hi{max-width:900px;margin:auto;display:flex;align-items:center;gap:12px}.logo{width:42px;height:42px;border-radius:12px;background:#fff;color:#111827;display:grid;place-items:center;font-weight:900}h1{font-size:19px;margin:0}.sub{font-size:12px;color:#cbd5e1;margin-top:3px}main{max-width:900px;margin:auto;padding:18px 14px 80px}.screen{display:none}.active{display:block}.title{font-size:24px;font-weight:900;margin:4px 0}.desc{color:var(--muted);font-size:14px;margin:0 0 18px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}.menu,.product{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:0 3px 12px #0000000b}.menu{cursor:pointer}.menu h2{margin:0 0 7px;font-size:20px}.menu p{margin:0;color:var(--muted);font-size:13px}button{border:0;border-radius:11px;padding:11px 14px;font-weight:700;cursor:pointer}.back{background:#e5e7eb}.blue{background:var(--blue);color:#fff}.search{width:100%;border:1px solid var(--line);border-radius:12px;padding:13px 14px;font-size:16px;margin:14px 0}.products{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}.ph{display:flex;justify-content:space-between;gap:10px}.code{font-size:21px;font-weight:900}.price{font-size:20px;font-weight:900;color:var(--green)}.qty{font-size:12px;font-weight:700;background:#f3f4f6;padding:6px 8px;border-radius:8px;display:inline-block;margin-top:10px}.spec{font-size:13px;color:#4b5563;line-height:1.45;margin-top:10px}.edit{width:100%;margin-top:13px;border:1px solid var(--line);background:#fff}#status{font-size:13px;color:var(--muted);margin:10px 0}dialog{border:0;border-radius:18px;width:min(92vw,430px);padding:20px}dialog input{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;font-size:17px;margin:10px 0}.actions{display:flex;gap:8px;justify-content:flex-end}@media(max-width:520px){.products{grid-template-columns:1fr}}
@@ -15,33 +15,85 @@
 </main>
 <dialog id="dlg"><b id="dt"></b><p class="desc">1000 adet fiyatı (TL)</p><input id="pi" type="number" min="0" step="1"><div class="actions"><button class="back" onclick="dlg.close()">İptal</button><button class="blue" onclick="savePrice()">Kaydet</button></div></dialog>
 <script>
-const URL="https://bczhmrabfggifwuctuot.supabase.co", KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJjemhtcmFiZmdnaWZ3dWN0dW90Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1Mzc5NjcsImV4cCI6MjEwNjExMzk2N30.rlPr4otfw9gilGcVB0hVjFHR-4u5fhs8DScUap9I55k", DESC={"NK": "250 gr. Bristol Tek Yön Renkli Parlak Selefonlu", "NKA": "250 gr. Bristol Tek Yön Renkli Parlak Selefonlu Arkası Tek Renk Siyah", "NSK": "300 gr. Bristol Tek Yön Renkli Arkası Tek Renk Siyah", "MNA": "350 gr. Bristol Tek Yön Renkli Mat Selefonlu Arkası Tek renk Siyah", "CYP": "350 gr. Kuşe Çift Yön Renkli Parlak Selefonlu", "CYM": "350 gr. Kuşe Çift Yön Renkli Mat Selefonlu", "KL": "350 gr. Kuşe Tek Yön Renkli Mat Selefonlu Kabartma Laklı", "CYML4": "400 gr. Kuşe Çift Yön Renkli Mat Selefonlu Laklı", "O-COK": "350 gr. Kuşe Çift Yön Renkli Mat Selefonlu Kabartma Laklı Oval Kesim", "S-COK": "350 gr. Kuşe Çift Yön Renkli Mat Selefonlu Kabartma Laklı Özel Kesim", "O-SEK": "700 gr. Sıvama Mat Selefon Kabartma Laklı Oval Kesim Çift Yön", "EKO-SEK": "A.Bristol Sıvama Mat Selefon Kabartma Laklı Oval Kesim Çift Yön, Bitmiş Ebat 82x50", "S-SEK": "700 gr. Sıvama Mat Selefon Kabartma Laklı Özel Kesim Çift Yön", "A-SEK": "700 gr. Sıvama Mat Selefon Kabartma Laklı Tek Yön Altın Yaldız Özel Kesim Çift Yön", "AC-SEK": "700 gr. Sıvama Mat Selefon Kabartma Laklı Çift Yön Altın Yaldız Özel Kesim Çift Yön", "TANK": "800 gr. Bristol Sıvama Mat Selefon Kabartma Laklı Özel Kesim Çift Yön", "AY": "350 gr. Bristol Tek Yön Renkli Mat Selefonlu Altın Yaldızlı Arkası Tek Renk Siyah", "GY": "350 gr. Bristol Tek Yön Renkli Mat Selefonlu Gümüş Yaldızlı Arkası Tek Renk Siyah", "VIP": "350 gr. Kuşe Çift Yön Renkli Mat Selefonlu Özel Kesim Laklı - Ön Yüz Altın Yaldız", "FAN": "280 gr. Tuale Renkli Tek Yön", "F-SEK": "560 gr. Tuale Renkli Çift Yön"};
-const db=window.supabase.createClient(URL,KEY);let rows=[],editing=null;
-function show(id){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active')}
-function money(n){return new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TRY',maximumFractionDigits:0}).format(Number(n||0))}
+const SB_URL="https://bczhmrabfggifwuctuot.supabase.co";
+const SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJjemhtcmFiZmdnaWZ3dWN0dW90Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1Mzc5NjcsImV4cCI6MjEwNjExMzk2N30.rlPr4otfw9gilGcVB0hVjFHR-4u5fhs8DScUap9I55k";
+const DESC={"NK": "250 gr. Bristol Tek Yön Renkli Parlak Selefonlu", "NKA": "250 gr. Bristol Tek Yön Renkli Parlak Selefonlu Arkası Tek Renk Siyah", "NSK": "300 gr. Bristol Tek Yön Renkli Arkası Tek Renk Siyah", "MNA": "350 gr. Bristol Tek Yön Renkli Mat Selefonlu Arkası Tek renk Siyah", "CYP": "350 gr. Kuşe Çift Yön Renkli Parlak Selefonlu", "CYM": "350 gr. Kuşe Çift Yön Renkli Mat Selefonlu", "KL": "350 gr. Kuşe Tek Yön Renkli Mat Selefonlu Kabartma Laklı", "CYML4": "400 gr. Kuşe Çift Yön Renkli Mat Selefonlu Laklı", "O-COK": "350 gr. Kuşe Çift Yön Renkli Mat Selefonlu Kabartma Laklı Oval Kesim", "S-COK": "350 gr. Kuşe Çift Yön Renkli Mat Selefonlu Kabartma Laklı Özel Kesim", "O-SEK": "700 gr. Sıvama Mat Selefon Kabartma Laklı Oval Kesim Çift Yön", "EKO-SEK": "A.Bristol Sıvama Mat Selefon Kabartma Laklı Oval Kesim Çift Yön, Bitmiş Ebat 82x50", "S-SEK": "700 gr. Sıvama Mat Selefon Kabartma Laklı Özel Kesim Çift Yön", "A-SEK": "700 gr. Sıvama Mat Selefon Kabartma Laklı Tek Yön Altın Yaldız Özel Kesim Çift Yön", "AC-SEK": "700 gr. Sıvama Mat Selefon Kabartma Laklı Çift Yön Altın Yaldız Özel Kesim Çift Yön", "TANK": "800 gr. Bristol Sıvama Mat Selefon Kabartma Laklı Özel Kesim Çift Yön", "AY": "350 gr. Bristol Tek Yön Renkli Mat Selefonlu Altın Yaldızlı Arkası Tek Renk Siyah", "GY": "350 gr. Bristol Tek Yön Renkli Mat Selefonlu Gümüş Yaldızlı Arkası Tek Renk Siyah", "VIP": "350 gr. Kuşe Çift Yön Renkli Mat Selefonlu Özel Kesim Laklı - Ön Yüz Altın Yaldız", "FAN": "280 gr. Tuale Renkli Tek Yön", "F-SEK": "560 gr. Tuale Renkli Çift Yön"};
+let rows=[];
+let editingId=null;
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(function(el){el.classList.remove('active')});
+  document.getElementById(id).classList.add('active');
+}
+
+function money(n){
+  return new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TRY',maximumFractionDigits:0}).format(Number(n||0));
+}
+
 async function load(){
- const statusBox=document.getElementById('status');
- statusBox.textContent='Fiyatlar yükleniyor...';
- try{
-   const {data,error}=await db.from('urun_fiyatlari').select('*').is('teklif_no',null).order('id');
-   if(error) throw error;
-   rows=(data||[]).filter(x=>x.urun);
-   statusBox.textContent=rows.length+' kartvizit çeşidi yüklendi.';
-   render();
- }catch(e){
-   statusBox.textContent='Bağlantı hatası: '+(e?.message||e);
- }
+  const box=document.getElementById('status');
+  box.textContent='Fiyatlar yükleniyor...';
+  try {
+    const endpoint=SB_URL+'/rest/v1/urun_fiyatlari?select=*&teklif_no=is.null&order=id.asc';
+    const response=await fetch(endpoint,{
+      method:'GET',
+      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Accept':'application/json'}
+    });
+    const body=await response.text();
+    if(!response.ok) throw new Error(body || ('HTTP '+response.status));
+    const data=JSON.parse(body);
+    rows=(data||[]).filter(function(x){return !!x.urun});
+    box.textContent=rows.length+' kartvizit çeşidi yüklendi.';
+    render();
+  } catch(err) {
+    box.textContent='Bağlantı hatası: '+(err && err.message ? err.message : String(err));
+  }
 }
+
 function render(){
- const q=(document.getElementById('productSearch').value||'').toLocaleLowerCase('tr');
- const list=rows.filter(x=>((x.urun||'')+' '+(DESC[x.urun]||'')).toLocaleLowerCase('tr').includes(q));
- document.getElementById('products').innerHTML=list.map(x=>`<div class="product"><div class="ph"><span class="code">${x.urun}</span><span class="price">${money(x.toplam_fiyat)}</span></div><span class="qty">1000 Adet</span><div class="spec">${DESC[x.urun]||''}</div><button class="edit" onclick="editPrice(${x.id})">Fiyatı Düzenle</button></div>`).join('');
+  const q=(document.getElementById('productSearch').value||'').toLocaleLowerCase('tr');
+  const list=rows.filter(function(x){
+    return (((x.urun||'')+' '+(DESC[x.urun]||'')).toLocaleLowerCase('tr').indexOf(q)>=0);
+  });
+  document.getElementById('products').innerHTML=list.map(function(x){
+    return '<div class="product"><div class="ph"><span class="code">'+x.urun+
+      '</span><span class="price">'+money(x.toplam_fiyat)+'</span></div>'+
+      '<span class="qty">1000 Adet</span><div class="spec">'+(DESC[x.urun]||'')+
+      '</div><button class="edit" onclick="editPrice('+x.id+')">Fiyatı Düzenle</button></div>';
+  }).join('');
 }
-function editPrice(id){editing=rows.find(x=>x.id===id);document.getElementById('dt').textContent=editing.urun+' Fiyatını Düzenle';document.getElementById('pi').value=editing.toplam_fiyat;document.getElementById('dlg').showModal()}
+
+function editPrice(id){
+  const item=rows.find(function(x){return x.id===id});
+  if(!item)return;
+  editingId=id;
+  document.getElementById('dt').textContent=item.urun+' Fiyatını Düzenle';
+  document.getElementById('pi').value=item.toplam_fiyat||0;
+  document.getElementById('dlg').showModal();
+}
+
 async function savePrice(){
- if(!editing)return;const v=Number(document.getElementById('pi').value);if(!Number.isFinite(v)||v<0)return;
- const {error}=await db.from('urun_fiyatlari').update({toplam_fiyat:v}).eq('id',editing.id);
- if(error){alert('Fiyat güncellenemedi: '+error.message);return}
- editing.toplam_fiyat=v;document.getElementById('dlg').close();render();
+  if(editingId===null)return;
+  const value=Number(document.getElementById('pi').value);
+  if(!Number.isFinite(value)||value<0)return;
+  try {
+    const endpoint=SB_URL+'/rest/v1/urun_fiyatlari?id=eq.'+encodeURIComponent(editingId);
+    const response=await fetch(endpoint,{
+      method:'PATCH',
+      headers:{
+        'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,
+        'Content-Type':'application/json','Prefer':'return=minimal'
+      },
+      body:JSON.stringify({toplam_fiyat:value})
+    });
+    const body=await response.text();
+    if(!response.ok)throw new Error(body||('HTTP '+response.status));
+    const item=rows.find(function(x){return x.id===editingId});
+    if(item)item.toplam_fiyat=value;
+    document.getElementById('dlg').close();
+    render();
+  } catch(err) {
+    alert('Fiyat güncellenemedi: '+(err && err.message ? err.message : String(err)));
+  }
 }
 </script></body></html>
