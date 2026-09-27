@@ -11,7 +11,7 @@
 <main>
 <section id="home" class="screen active"><div class="title">Ürünler</div><p class="desc">Fiyat hesaplamak istediğiniz ürün grubunu seçin.</p><div class="grid"><div class="menu" onclick="show('card')"><h2>💳 Kartvizit</h2><p>Ofset ve dijital kartvizit fiyatları.</p></div></div></section>
 <section id="card" class="screen"><button class="back" onclick="show('home')">← Geri</button><div class="title">Kartvizit</div><p class="desc">Kartvizit türünü seçin.</p><div class="grid"><div class="menu" onclick="show('offset');load()"><h2>Ofset Kartvizit</h2><p>1000 adet sabit fiyatlı kartvizitler.</p></div><div class="menu" onclick="alert('Dijital Kartvizit bölümünü sonraki aşamada ekleyeceğiz.')"><h2>Dijital Kartvizit</h2><p>Sonraki aşamada eklenecek.</p></div></div></section>
-<section id="offset" class="screen"><button class="back" onclick="show('card')">← Geri</button><div class="title">Ofset Kartvizit</div><p class="desc">Fiyatlar 1000 adet içindir. Fiyat değişiklikleri tüm cihazlarda Supabase üzerinden güncellenir.</p><input id="productSearch" class="search" placeholder="Kod veya özellik ara..." oninput="render()"><div id="status">Fiyatlar yükleniyor...</div><div id="products" class="products"></div></section>
+<section id="offset" class="screen"><button class="back" onclick="show('card')">← Geri</button><div class="title">Ofset Kartvizit</div><p class="desc">Fiyatlar 1000 adet içindir. Fiyat değişiklikleri tüm cihazlarda Supabase üzerinden güncellenir.</p><input id="productSearch" class="search" placeholder="Kod veya özellik ara..." oninput="render()" onkeyup="render()" onchange="render()" onsearch="render()"><div id="status">Fiyatlar yükleniyor...</div><div id="products" class="products"></div></section>
 </main>
 <dialog id="dlg"><b id="dt"></b><p class="desc">1000 adet fiyatı (TL)</p><input id="pi" type="number" min="0" step="1"><div class="actions"><button class="back" onclick="dlg.close()">İptal</button><button class="blue" onclick="savePrice()">Kaydet</button></div></dialog>
 <script>
@@ -51,25 +51,22 @@ async function load(){
 }
 
 function normalizeSearch(s){
-  return (s||'')
-    .toLocaleLowerCase('tr')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g,'')
+  return String(s||'')
+    .toLocaleLowerCase('tr-TR')
     .replace(/ı/g,'i')
-    .replace(/[^a-z0-9ğüşöç]+/g,' ')
-    .trim();
+    .replace(/İ/g,'i')
+    .replace(/ş/g,'s')
+    .replace(/ğ/g,'g')
+    .replace(/ü/g,'u')
+    .replace(/ö/g,'o')
+    .replace(/ç/g,'c');
 }
 function render(){
-  const q=normalizeSearch(document.getElementById('productSearch').value);
+  const input=document.getElementById('productSearch');
+  const q=normalizeSearch(input ? input.value : '').trim();
   const list=rows.filter(function(x){
     const hay=normalizeSearch((x.urun||'')+' '+(DESC[x.urun]||''));
-    if(!q)return true;
-    const terms=q.split(/\s+/).filter(Boolean);
-    return terms.every(function(term){
-      return hay.split(/\s+/).some(function(word){
-        return word.indexOf(term)>=0;
-      });
-    });
+    return q==='' || hay.includes(q);
   });
   document.getElementById('products').innerHTML=list.map(function(x){
     return '<div class="product"><div class="ph"><span class="code">'+x.urun+
